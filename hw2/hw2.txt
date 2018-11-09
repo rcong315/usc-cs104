@@ -1,0 +1,42 @@
+1. a) README.md is unmodified
+   b) README.md is modified 
+   	  fun_problem.txt is untracked
+   c) README.md and fun_problem.txt are both staged
+   d) README.md and fun_problem.txt are both modified
+   e) README.md is staged
+   	  fun_problem.txt is unmodified
+   	  fun_problem.txt is empty and has no text because checkout reverts the changes.
+   f) README.md is modified
+   	  If you modify a staged file the most recent changes are no longer staged so the file becomes modified.
+
+3. 1) A map of structs constaining the statistics as values and zip codes 
+      as keys. Because you want to be able to find the statistics by 
+      giving a specific zip code, a map is best. It will find the element
+      that has the same zip code key and can access the statistics easily.
+   2) A set of strings/strucs of students' names would be a good fit. 
+      Order is not necessarily important , and it would be easy to see if
+      a certain student completed a chocolate problem because sets have a
+      contains() function.
+   3) A list of strings/structs of pokemon of size 151 would work because 
+      the numbers can act like indexes. That way the pokemon are
+      organized by their number. The only thing you have to worry about
+      is subtracting 1 from the pokemon you want to get the index because
+      the pokemon numbers start at 1. 
+   4) A map of movie structs containing name and year as keys and reviews
+      as values would be best for this situation. By giving a struct of a
+      movie, you can easily find the reviews to that movie.
+
+4. The new linked list is {5 -> 4 -> 3 -> 2 -> 1}. funcA recursively
+calls itself until it reaches the last node of the original linked list
+which is 5. 5 is now the return value for funcA(4), which calls funcB(4,
+5) and deletes the next pointer of 4. funcB(4, 5) just changes 5's next
+pointer to point to 4 because 5's next pointer was NULL originally. 
+funcA(4) returns the value of func(5) so it returns 5 again. Now
+funcB(3,5) is called, and since 5's next now points to 4, it enters the
+if loop. funcB(3, 4) is recursively called which causes 4's next pointer
+to point to 3. Back in funcA, 3's next pointer is NULLED. funcA(3) is
+also 5, so funcB(2, 5) is called. funcB is then recursively called until
+it is funcB(2, 3). THis causes 3's next to point to 2 and back in funcA
+2's next pointer is NULLED. The last iteration is similar and causes 2's
+next to point to 1 and NULLs 1's next pointer. Now the linked list is in 
+reverse.
