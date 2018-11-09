@@ -1,3 +1,5 @@
+Read CSCI 104 – Homework 6.pdf for the problem descriptions
+
 To make and run problem 1, enter commands:
 
 make search
