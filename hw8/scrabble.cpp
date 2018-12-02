@@ -6,6 +6,8 @@
 #include "Bag.h"
 #include "Dictionary.h"
 #include "Player.h"
+#include "MaxScoreAI.h"
+#include "MaxLetterAI.h"
 #include "ConsolePrinter.h"
 #include "Exceptions.h"
 
@@ -31,14 +33,13 @@ int main(int argc, char* argv[]) {
     string boardfile;
     string tilesfile;
     string dictionaryfile;
+    string initfile;
+    bool init = false;
     uint32_t seed;
     while (!config.eof()) {
         config >> keyword;
-        if (keyword == "HANDSIZE:") {
+        if (keyword == "NUMBER:") {
             config >> maxhandsize;
-        }
-        else if (keyword == "BOARD:") {
-            config >> boardfile;
         }
         else if (keyword == "TILES:") {
             config >> tilesfile;
@@ -46,15 +47,26 @@ int main(int argc, char* argv[]) {
         else if (keyword == "DICTIONARY:") {
             config >> dictionaryfile;
         }
-        else {
+        else if (keyword == "BOARD:") {
+            config >> boardfile;
+        }
+        else if (keyword == "SEED:"){
             config >> seed;
+        }
+        else if (keyword == "INIT:") {
+            config >> initfile;
+            init = true;
         }
     }
     config.close();
     //initialize classes
+	Dictionary* dictionary = new Dictionary(dictionaryfile);
     Board* board = new Board(boardfile);
+    if (init) {
+        board -> init(initfile);
+    }
     Bag* bag = new Bag(tilesfile, seed);
-    Dictionary* dictionary = new Dictionary(dictionaryfile);
+  
     ConsolePrinter* game = new ConsolePrinter;
     //initilize players
     vector<Player*> playerlist = setPlayers(bag, maxhandsize);
@@ -68,9 +80,20 @@ int main(int argc, char* argv[]) {
         int playerturn = turn % players;
         Player* currplayer = playerlist[playerturn];
         game -> printHand(*currplayer);
-        cout << endl << currplayer -> getName() << "'s turn: ";
-        string move;
-        getline(cin, move);
+        //player or ai
+		if (currplayer->isAI()) {
+			cout << endl << currplayer->getName() << " is calculating...: " << endl;
+		}
+		else {
+			cout << endl << currplayer->getName() << "'s turn: ";
+		}
+		string move;
+        if (currplayer -> isAI()) {
+            move = currplayer -> getAIMove(board, dictionary);
+        }
+        else {
+            getline(cin, move);
+        }
         stringstream movestream(move);
         string movetype;
         string movetiles;
@@ -105,38 +128,41 @@ int main(int argc, char* argv[]) {
                 outofbounds = true;
                 cout << e.getMessage() << endl;
             }
-            //loop while input is not valid
-            while (outofbounds || !board -> isLegal(place, dictionary, wordsformed) || (!firstplace && !board -> checkForAdjacentTiles(place)) || !currplayer -> hasTiles(movetiles, true) || (firstplace && !board -> moveHasStart(place))) {
-                if (outofbounds) {
-                }
-                else if (!firstplace && !board -> checkForAdjacentTiles(place)) {
-                    cout << "error: Place move has to be adjacent to at least one tile" << endl;
-                }
-                else if (!currplayer -> hasTiles(movetiles, true)) {
-                    cout << "error: Player does not have required tiles" << endl;
-                }
-                else if (firstplace && !board -> moveHasStart(place)) {
-                    cout << "error: First move does not land on start" << endl;
-                }
-                //take input again
-                cout << "Try again: ";
-                getline(cin, move);
-                cout << endl;
-                movestream.clear();
-                movestream.str(move);
-                movestream >> movetype;
-                movestream >> dir;
-                movestream >> y;
-                movestream >> x;
-                movestream >> movetiles;
-                horizontal = (dir == '-');
-                place = PlaceMove(x, y, horizontal, movetiles, currplayer);
-                try {
-                    wordsformed = board -> getPlaceMoveResults(place);
-                    outofbounds = false;
-                }
-                catch (PlaceException e) {
-                    cout << e.getMessage() << endl;
+            bool start = board -> getSquare(8, 8) -> isOccupied();
+            //loop only if player is not ai and while input is not valid
+            if (!currplayer -> isAI()) {
+                while (outofbounds || !board -> isLegal(place, dictionary, wordsformed) || (!firstplace && !board -> checkForAdjacentTiles(place)) || !currplayer -> hasTiles(movetiles, true) || (!start && !board -> moveHasStart(place))) {
+                    if (outofbounds) {
+                    }
+                    else if (!firstplace && !board -> checkForAdjacentTiles(place)) {
+                        cout << "error: Place move has to be adjacent to at least one tile" << endl;
+                    }
+                    else if (!currplayer -> hasTiles(movetiles, true)) {
+                        cout << "error: Player does not have required tiles" << endl;
+                    }
+                    else if (!start && !board -> moveHasStart(place)) {
+                        cout << "error: First move does not land on start" << endl;
+                    }
+                    //take input again
+                    cout << "Try again: ";
+                    getline(cin, move);
+                    cout << endl;
+                    movestream.clear();
+                    movestream.str(move);
+                    movestream >> movetype;
+                    movestream >> dir;
+                    movestream >> y;
+                    movestream >> x;
+                    movestream >> movetiles;
+                    horizontal = (dir == '-');
+                    place = PlaceMove(x, y, horizontal, movetiles, currplayer);
+                    try {
+                        wordsformed = board -> getPlaceMoveResults(place);
+                        outofbounds = false;
+                    }
+                    catch (PlaceException e) {
+                        cout << e.getMessage() << endl;
+                    }
                 }
             }
             //execute place move
@@ -233,8 +259,8 @@ int main(int argc, char* argv[]) {
     }
     //free all memory
     freeMemory(playerlist);
-    delete board;
     delete bag;
+    delete board;
     delete dictionary;
     delete game;
     return 0;
@@ -242,16 +268,35 @@ int main(int argc, char* argv[]) {
 
 //sets up players and gives them a hand each
 vector<Player*> setPlayers(Bag*& bag, int maxhandsize) {
-    int players;
-    cout << "How many players? ";
+    int players = 1;
+    
+	cout << "How many players? ";
     cin >> players;
     cin.ignore();
+	
     vector<Player*> playerlist;
     for (int i = 0; i < players; i++) {
         string name;
         cout << endl << "What is player " << i + 1 << "'s name? ";
         getline(cin, name);
-        Player* player = new Player(name, maxhandsize);
+		
+		string type = name.substr(0, 4);
+        stringstream typestream(type);
+        string temp;
+        typestream >> temp;
+        for (unsigned int i = 0; i < temp.size(); i++) {
+            type[i] = toupper(temp.at(i));
+        }
+        Player* player;
+        if (type == "CPUS") {
+            player = new MaxScoreAI(name, maxhandsize);
+        }
+        else if (type == "CPUL") {
+            player = new MaxLetterAI(name, maxhandsize);
+        }
+        else {
+            player = new Player(name, maxhandsize);
+        }
         player -> addTiles(bag -> drawTiles(maxhandsize));
         playerlist.push_back(player);
     }
