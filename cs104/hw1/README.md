@@ -1,0 +1,1 @@
+In this assignment I used my knowledge of course policies and git to answer questions. I wrote a program that can detect palidromes. This program uses recursion and streams. I also wrote a program that reads a file of text and prints out the words in reverse order. Lastly, I wrote two versions of a program that manages a memory buffer through allocating and freeing memory.

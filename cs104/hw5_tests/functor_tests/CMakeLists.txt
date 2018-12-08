@@ -1,0 +1,5 @@
+
+add_executable(functor_test functor_tests.cpp)
+target_link_libraries(functor_test testing_utils hw5_functor gtest gtest_main)
+
+add_valgrind_gtests(functor_test)

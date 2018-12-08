@@ -1,0 +1,9 @@
+
+add_executable(fatalist_test fatalist_tests.cpp)
+target_link_libraries(fatalist_test testing_utils hw5_fatalist gtest gtest_main)
+
+add_executable(fatalist_runtime_test fatalist_runtime_tests.cpp)
+target_link_libraries(fatalist_runtime_test testing_utils hw5_fatalist gtest gtest_main)
+
+add_valgrind_gtests(fatalist_test)
+gtest_add_tests(fatalist_runtime_test "" AUTO)

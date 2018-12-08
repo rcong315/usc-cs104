@@ -1,0 +1,25 @@
+2. b) enqueue(x) takes theta(1) or constant time. It just 
+	  pushes one element and push is also theta(1) time.
+
+	  dequeue() should take theta(n) or linear time where 
+	  n = stack1.size(). Worst case, stack2 will be empty and popping everything in stack1 will take constant time per element so the total time depends on how many elements there are in stack1. After popping from stack1, the program pushes all the elements to stack2 which also takes linear time. Therefore the worst case of the program runs in linear time.
+
+   c) The worst case for enqueue(x) is still theta(1) or 
+   	  constant time because the runtime for push has not been changed.
+
+   	  dequeue() while take theta(n^2) time. Because pop now takes n time, popping the entire contents of stack1 will take n + n-1 + n-2 + ... 1 which evaulates to (n^2)/2. We can remove the constant and we are left with n^2
+
+3. NOTE: All mentions of log mean log base 2 
+
+	a) The outer for loop will take n time and worst case, A[i]
+	  will equal 0 every time and the inner for loop will be executed for all i. The inner for loop takes logn time because j is multiplied by 2 for each iteration. Therefore the whole code will take theta(nlogn) time.
+
+   b) The outermost for loop will take n time. The for loop
+	  inside the outermost will also take n time. The innermost for loop will take logn time because k is double each iteration. So the run time should be n^2 + however many times the if loop is entered times logn. The if loop is entered nlogn times because there are n different values for i and for each i the if loop will be entered int(n/i) times. Summing all n/i is a harmonic series, which evaluates to nlnn, which is theta(nlogn). Therefore the whole program takes 
+	  theta(n^2 + n(log(n)^2)).
+
+   c) The outer for loop takes n time. The inner if and for 
+	  loops will take a total of n^2 time because the the for loop will run 10 times, then 20, then 30, until it reaches n. The total will avaluate to (n^2) * 5. Therefore the whole program will take theta((n^2) + n) time.
+
+   d) The outer for loop takes n time. The inner if loop and
+   	  for loop will take a total of 2^n time because the summation of 2^x for x = 0 to x = n is 2^(n + 1) - 1; Therefore the whole program will take theta((2^n) + n).

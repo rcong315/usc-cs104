@@ -1,0 +1,13 @@
+1. a) 1, 4, 8
+   b) 1, 2, 4, 6
+   c) 2
+   d) 2, 4
+
+2. a) 3
+   b) 1. git add hw1q2b.cpp
+	  2. git log	
+   c) It will commit the files and make them part of the
+      repository history
+
+6. Part 1
+   3. The free_chars function frees all memory addressed after the given address. A user could have a pointer to an address of memory in this location and this function will set this memory to null and the user will lose whatever was stored there.
